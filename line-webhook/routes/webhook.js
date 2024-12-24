@@ -1,17 +1,40 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 
 const WEBHOOK_SECRET = 'a9c7b16fadc00cb2e4fff146edd0bbfb'; // Replace with your actual secret token
 
-router.post('/', (req, res) => {
-    const token = req.headers['authorization']; // Expect a Bearer token
-    if (token !== `Bearer ${WEBHOOK_SECRET}`) {
-        return res.status(401).send('Unauthorized'); // Reject non-authenticated requests
-    }
+// Middleware to verify LINE signature
+function verifyLineSignature(req, res, next) {
+    const signature = req.headers['x-line-signature'];
+    const body = JSON.stringify(req.body);
 
-    console.log(req.body); // Log the incoming request body
-    res.status(200).send('Webhook received!');
+    const hash = crypto.createHmac('SHA256', CHANNEL_SECRET).update(body).digest('base64');
+
+    if (signature === hash) {
+        next(); // Signature is valid, proceed to the next middleware
+    } else {
+        res.status(401).send('Unauthorized'); // Signature is invalid
+    }
+}
+
+// Use the middleware for your webhook route
+router.post('/', verifyLineSignature, (req, res) => {
+    console.log('Received message from LINE:', req.body);
+
+    // Respond with status 200 to acknowledge the request
+    res.status(200).send('OK');
 });
+
+// router.post('/', (req, res) => {
+//     const token = req.headers['authorization']; // Expect a Bearer token
+//     if (token !== `Bearer ${WEBHOOK_SECRET}`) {
+//         return res.status(401).send('Unauthorized'); // Reject non-authenticated requests
+//     }
+
+//     console.log(req.body); // Log the incoming request body
+//     res.status(200).send('Webhook received!');
+// });
 
 module.exports = router;
 
