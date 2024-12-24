@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const WEBHOOK_SECRET = 'your_secret_token_here'; // Replace with your actual secret token
+const WEBHOOK_SECRET = 'a9c7b16fadc00cb2e4fff146edd0bbfb'; // Replace with your actual secret token
 
 router.post('/', (req, res) => {
     const token = req.headers['authorization']; // Expect a Bearer token
