@@ -1,90 +1,81 @@
 const express = require('express');
-const router = express.Router();
 const crypto = require('crypto');
+const line = require('@line/bot-sdk');
 
-const WEBHOOK_SECRET = 'a9c7b16fadc00cb2e4fff146edd0bbfb'; // Replace with your actual secret token
+const router = express.Router();
+
+// LINE Bot Configuration
+const config = {
+    channelAccessToken: 'YOUR_CHANNEL_ACCESS_TOKEN', // Replace with your actual Channel Access Token
+    channelSecret: 'YOUR_CHANNEL_SECRET',           // Replace with your actual Channel Secret
+};
+
+// Initialize LINE Client
+const client = new line.Client(config);
 
 // Middleware to verify LINE signature
 function verifyLineSignature(req, res, next) {
-    const signature = req.headers['x-line-signature'];
-    const body = JSON.stringify(req.body);
+    try {
+        const signature = req.headers['x-line-signature'];
+        const body = JSON.stringify(req.body);
 
-    const hash = crypto.createHmac('SHA256', CHANNEL_SECRET).update(body).digest('base64');
+        // Generate HMAC hash for signature verification
+        const hash = crypto.createHmac('SHA256', config.channelSecret).update(body).digest('base64');
 
-    if (signature === hash) {
-        next(); // Signature is valid, proceed to the next middleware
-    } else {
-        res.status(401).send('Unauthorized'); // Signature is invalid
+        if (signature === hash) {
+            next(); // Signature is valid
+        } else {
+            console.error('Invalid signature:', { signature, hash });
+            res.status(401).send('Unauthorized'); // Respond with 401 if the signature is invalid
+        }
+    } catch (err) {
+        console.error('Error verifying signature:', err);
+        res.status(500).send('Internal Server Error');
     }
 }
 
-// Use the middleware for your webhook route
-router.post('/', verifyLineSignature, (req, res) => {
-    console.log('Received message from LINE:', req.body);
+// Webhook route
+router.post('/', verifyLineSignature, async (req, res) => {
+    try {
+        const events = req.body.events;
 
-    // Respond with status 200 to acknowledge the request
-    res.status(200).send('OK');
+        // Respond immediately to LINE
+        res.status(200).send('OK');
+
+        if (!events || events.length === 0) {
+            console.log('No events received');
+            return;
+        }
+
+        // Process each event
+        for (const event of events) {
+            console.log('Received event:', event);
+
+            // Example: Handle text messages
+            if (event.type === 'message' && event.message.type === 'text') {
+                const replyText = `You said: ${event.message.text}`;
+                await handleTextMessage(event, replyText);
+            } else {
+                console.log(`Unhandled event type: ${event.type}`);
+            }
+        }
+    } catch (err) {
+        console.error('Error handling webhook event:', err);
+    }
 });
 
-// router.post('/', (req, res) => {
-//     const token = req.headers['authorization']; // Expect a Bearer token
-//     if (token !== `Bearer ${WEBHOOK_SECRET}`) {
-//         return res.status(401).send('Unauthorized'); // Reject non-authenticated requests
-//     }
-
-//     console.log(req.body); // Log the incoming request body
-//     res.status(200).send('Webhook received!');
-// });
+// Function to handle text messages
+async function handleTextMessage(event, replyText) {
+    try {
+        // Reply to the user
+        await client.replyMessage(event.replyToken, {
+            type: 'text',
+            text: replyText,
+        });
+        console.log('Reply sent:', replyText);
+    } catch (err) {
+        console.error('Error sending reply:', err);
+    }
+}
 
 module.exports = router;
-
-// var express = require('express');
-// var router = express.Router();
-// const line = require('@line/bot-sdk');
-// const bodyParser = require('body-parser');
-
-// // LINE Bot configuration
-// const config = {
-//   channelAccessToken: '2006710158',
-//   channelSecret: 'a9c7b16fadc00cb2e4fff146edd0bbfb',
-// };
-
-
-
-// // Webhook route
-// router.post('/webhook', line.middleware(config), (req, res) => {
-//   const events = req.body.events;
-
-//   // Handle each event
-//   events.forEach((event) => {
-//     handleEvent(event);
-//   });
-
-//   res.status(200).send('OK');
-// });
-
-// // Event handler function
-// const client = new line.Client(config);
-
-// async function handleEvent(event) {
-//   if (event.type !== 'message' || event.message.type !== 'text') {
-//     // Ignore non-text messages
-//     return;
-//   }
-
-//   // Reply to the message
-//   const replyMessage = { type: 'text', text: `You said: ${event.message.text}` };
-
-//   try {
-//     await client.replyMessage(event.replyToken, replyMessage);
-//   } catch (err) {
-//     console.error('Error:', err);
-//   }
-// }
-
-// /* GET users listing. */
-// router.get('/', function(req, res, next) {
-//   res.send('respond with a resource');
-// });
-
-// module.exports = router;
