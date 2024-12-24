@@ -6,8 +6,8 @@ const router = express.Router();
 
 // LINE Bot Configuration
 const config = {
-    channelAccessToken: 'a9c7b16fadc00cb2e4fff146edd0bbfb', // Replace with your actual Channel Access Token
-    channelSecret: 'YOUR_CHANNEL_SECRET',           // Replace with your actual Channel Secret
+    channelAccessToken: '2006710158', // Replace with your actual Channel Access Token
+    channelSecret: 'a9c7b16fadc00cb2e4fff146edd0bbfb',           // Replace with your actual Channel Secret
 };
 
 // Initialize LINE Client
