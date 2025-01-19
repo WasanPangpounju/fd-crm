@@ -14,7 +14,7 @@ var app = express();
 
 // Line SDK Configuration
 const config = {
-    channelAccessToken: '2006710158',
+    channelAccessToken: 'zXNSmsTUPcOAEt+c6k/8AAn/16rLmtQVNssnTpsyaKOLNcNmvAlSe9muoU79JOgnfLATOncA3pqRIogRjhEB0teYGsGbSlRlrL4JMSbP4FTRz7DcltsNzErAqqhLziWnMAewkCS10fbB9LzB1eqytwdB04t89/1O/w1cDnyilFU=',
     channelSecret: 'a9c7b16fadc00cb2e4fff146edd0bbfb',
   };
 // Line SDK client
