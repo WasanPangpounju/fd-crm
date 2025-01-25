@@ -11,7 +11,6 @@
  */
 
 /* tslint:disable:no-unused-locals */
-import { AudienceMatchMessagesRequest } from "../model/audienceMatchMessagesRequest.js";
 import { BotInfoResponse } from "../model/botInfoResponse.js";
 import { BroadcastRequest } from "../model/broadcastRequest.js";
 import { CreateRichMenuAliasRequest } from "../model/createRichMenuAliasRequest.js";
@@ -103,36 +102,6 @@ export class MessagingApiClient {
     return resBody;
   }
 
-  /**
-   * Send a message using phone number
-   * @param audienceMatchMessagesRequest
-   *
-   * @see <a href="https://developers.line.biz/en/reference/partner-docs/#phone-audience-match"> Documentation</a>
-   */
-  public async audienceMatch(
-    audienceMatchMessagesRequest: AudienceMatchMessagesRequest,
-  ): Promise<Types.MessageAPIResponseBase> {
-    return (await this.audienceMatchWithHttpInfo(audienceMatchMessagesRequest))
-      .body;
-  }
-
-  /**
-   * Send a message using phone number.
-   * This method includes HttpInfo object to return additional information.
-   * @param audienceMatchMessagesRequest
-   *
-   * @see <a href="https://developers.line.biz/en/reference/partner-docs/#phone-audience-match"> Documentation</a>
-   */
-  public async audienceMatchWithHttpInfo(
-    audienceMatchMessagesRequest: AudienceMatchMessagesRequest,
-  ): Promise<Types.ApiResponseType<Types.MessageAPIResponseBase>> {
-    const params = audienceMatchMessagesRequest;
-
-    const res = await this.httpClient.post("/bot/ad/multicast/phone", params);
-    const text = await res.text();
-    const parsedBody = text ? JSON.parse(text) : null;
-    return { httpResponse: res, body: parsedBody };
-  }
   /**
    * Sends a message to multiple users at any time.
    * @param broadcastRequest
@@ -318,45 +287,6 @@ export class MessagingApiClient {
         "{richMenuAliasId}",
         String(richMenuAliasId),
       ),
-    );
-    const text = await res.text();
-    const parsedBody = text ? JSON.parse(text) : null;
-    return { httpResponse: res, body: parsedBody };
-  }
-  /**
-   * Get result of message delivery using phone number
-   * @param date Date the message was sent  Format: `yyyyMMdd` (e.g. `20190831`) Time Zone: UTC+9
-   *
-   * @see <a href="https://developers.line.biz/en/reference/partner-docs/#get-phone-audience-match"> Documentation</a>
-   */
-  public async getAdPhoneMessageStatistics(
-    date: string,
-  ): Promise<NumberOfMessagesResponse> {
-    return (await this.getAdPhoneMessageStatisticsWithHttpInfo(date)).body;
-  }
-
-  /**
-   * Get result of message delivery using phone number.
-   * This method includes HttpInfo object to return additional information.
-   * @param date Date the message was sent  Format: `yyyyMMdd` (e.g. `20190831`) Time Zone: UTC+9
-   *
-   * @see <a href="https://developers.line.biz/en/reference/partner-docs/#get-phone-audience-match"> Documentation</a>
-   */
-  public async getAdPhoneMessageStatisticsWithHttpInfo(
-    date: string,
-  ): Promise<Types.ApiResponseType<NumberOfMessagesResponse>> {
-    const queryParams = {
-      date: date,
-    };
-    Object.keys(queryParams).forEach((key: keyof typeof queryParams) => {
-      if (queryParams[key] === undefined) {
-        delete queryParams[key];
-      }
-    });
-
-    const res = await this.httpClient.get(
-      "/v2/bot/message/delivery/ad_phone",
-      queryParams,
     );
     const text = await res.text();
     const parsedBody = text ? JSON.parse(text) : null;

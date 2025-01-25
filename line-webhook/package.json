@@ -6,7 +6,7 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
-    "@line/bot-sdk": "^9.5.1",
+    "@line/bot-sdk": "^9.5.3",
     "body-parser": "^1.20.3",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
